@@ -1,0 +1,174 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String @id @default(uuid())
+  username  String @unique
+  email     String @unique
+  password  String
+  createdAt BigInt @map("created_at")
+
+  roles       UserRole[]
+  donations   Donation[]
+  projects    Project[]    @relation("RequesterProjects")
+  ragSessions RagSession[]
+
+  name          String
+  emailVerified Boolean
+  image         String?
+  updatedAt     DateTime
+  sessions      Session[]
+  accounts      Account[]
+  notifications Notification[]
+
+  @@map("users")
+}
+
+model UserRole {
+  userId String @map("user_id")
+  role   Role
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@id([userId, role])
+  @@map("user_roles")
+}
+
+enum Role {
+  ADMIN
+  DONOR
+  REQUESTER
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  title     String
+  body      String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+model Project {
+  id               String        @id @default(uuid())
+  name             String        @unique
+  description      String
+  targetAmount     Float         @map("target_amount")
+  collectionAmount Float         @default(0) @map("collection_amount")
+  currency         String
+  status           ProjectStatus @default(NEED_REVIEW)
+  requesterId      String        @map("requester_id")
+  dueAt            BigInt        @map("due_at")
+  createdAt        BigInt        @map("created_at")
+  updatedAt        BigInt        @map("updated_at")
+
+  requester User           @relation("RequesterProjects", fields: [requesterId], references: [id])
+  images    ProjectImage[]
+  donations Donation[]
+
+  @@map("projects")
+}
+
+enum ProjectStatus {
+  NEED_REVIEW
+  APPROVED
+  COMPLETED
+  REJECTED
+}
+
+model ProjectImage {
+  id        String  @id @default(uuid())
+  projectId String  @map("project_id")
+  url       String
+
+  project Project @relation(fields: [projectId], references: [id])
+
+  @@map("project_images")
+}
+
+model Donation {
+  id        String  @id @default(uuid())
+  projectId String  @map("project_id")
+  donorId   String  @map("donor_id")
+  message   String?
+  amount    Float
+  currency  String
+  createdAt BigInt  @map("created_at")
+
+  donor   User    @relation(fields: [donorId], references: [id])
+  project Project @relation(fields: [projectId], references: [id])
+
+  @@map("donations")
+}
+
+model RagSession {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  title     String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user     User         @relation(fields: [userId], references: [id])
+  messages RagMessage[]
+
+  @@map("rag_sessions")
+}
+
+model RagMessage {
+  id        String   @id @default(uuid())
+  sessionId String   @map("session_id")
+  role      RagRole
+  content   String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  session RagSession @relation(fields: [sessionId], references: [id])
+
+  @@map("rag_messages")
+}
+
+enum RagRole {
+  USER
+  ASSISTANT
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime
+  updatedAt DateTime
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id @default(uuid())
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime
+  updatedAt             DateTime
+
+  @@map("account")
+}
