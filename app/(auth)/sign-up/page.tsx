@@ -6,12 +6,12 @@ import React from 'react'
 
 const page = () => {
   return (
-    <div className="w-full pt-8 pb-4 px-4 max-w-4xl mx-auto text-center space-y-8">
-      <h1 className="text-xl sm:text-3xl md:text-5xl font-bold mb-4">
+    <div className="w-full pt-8 pb-4 px-4 max-w-4xl mx-auto space-y-8">
+      <h1 className="text-center text-xl sm:text-3xl md:text-5xl font-bold mb-4">
         Bergabung Bersama <span className='text-primary'>Donation Hub</span>
       </h1>
 
-      <p className="text-sm font-medium sm:text-base md:text-lg text-gray-700 leading-relaxed">
+      <p className="text-center text-sm font-medium sm:text-base md:text-lg text-gray-700 leading-relaxed">
         Donation Hub adalah platform yang menjembatani para dermawan dengan berbagai proyek
         kolaboratif yang berdampak positif bagi masyarakat. Melalui aplikasi ini, Anda dapat
         berkontribusi secara langsung dalam mewujudkan perubahan untuk kemaslahatan umat.
@@ -30,7 +30,7 @@ const page = () => {
 
       <p className='text-sm text-muted-foreground'>
         Sudah punya akun?
-        <Link href="/sign-in">
+        <Link href="/sign-in" className='font-semibold'>
           <Button variant="link" asChild>
             <span className="text-primary underline underline-offset-4">Masuk di sini</span>
           </Button>

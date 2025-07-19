@@ -1,5 +1,5 @@
 'use client'
-import React, { useActionState, useState } from 'react'
+import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { signupSchema, SignupSchemaType } from '@/schemas/auth.schema'
@@ -15,15 +15,16 @@ import {
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Eye, EyeOff } from 'lucide-react'
+import { useActionForm } from '@/hook/useActionForm'
 
-const initialState: { success?: string; error?: string } | null = null
-
-function formReducer(_: typeof initialState, formData: FormData) {
-  return signupAction(formData as unknown as SignupSchemaType)
-}
+const extractSignupValues = (formData: FormData) => ({
+  name: formData.get('name') as string,
+  email: formData.get('email') as string,
+  password: formData.get('password') as string,
+  confirmPassword: formData.get('confirmPassword') as string,
+})
 
 const SignupForm = () => {
-  const [state, formAction] = useActionState(formReducer, initialState)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
@@ -32,11 +33,17 @@ const SignupForm = () => {
     mode: 'onChange',
     defaultValues: {
       name: '',
+      email: '',
       password: '',
       confirmPassword: '',
-      email: '',
     },
   })
+
+  const { state, formAction, isLoading } = useActionForm({
+    action: signupAction,
+    extractValues: extractSignupValues,
+  })
+
 
   return (
     <Form {...form}>
@@ -113,11 +120,7 @@ const SignupForm = () => {
                     onClick={() => setShowConfirmPassword((prev) => !prev)}
                     tabIndex={-1}
                   >
-                    {showConfirmPassword ? (
-                      <EyeOff size={18} />
-                    ) : (
-                      <Eye size={18} />
-                    )}
+                    {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
                 </div>
               </FormControl>
@@ -125,10 +128,16 @@ const SignupForm = () => {
             </FormItem>
           )}
         />
+
         {state?.error && <p className="text-red-500">{state.error}</p>}
         {state?.success && <p className="text-green-600">{state.success}</p>}
-        <Button disabled={!form.formState.isValid} type="submit" className='w-full disabled:cursor-not-allowed font-semibold cursor-pointer'>
-          Submit
+
+        <Button
+          disabled={!form.formState.isValid || isLoading}
+          type="submit"
+          className="w-full disabled:cursor-not-allowed font-semibold cursor-pointer"
+        >
+          {isLoading ? 'Mengirim...' : 'Submit'}
         </Button>
       </form>
     </Form>

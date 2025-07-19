@@ -1,7 +1,7 @@
 'use server'
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
-import { signupSchema, SignupSchemaType } from "@/schemas/auth.schema"
+import { signinSchema, SigninSchemaType, signupSchema, SignupSchemaType } from "@/schemas/auth.schema"
 import { BetterAuthError } from "better-auth"
 import { headers } from "next/headers"
 
@@ -27,7 +27,7 @@ export const signupAction = async (values:SignupSchemaType) => {
         body:{
             email,
             password,
-            name
+            name,
         }
     })
 
@@ -49,6 +49,35 @@ export const signupAction = async (values:SignupSchemaType) => {
 
     return { success: 'Account created!' }
   } catch (error) {
+    if (error instanceof BetterAuthError) {
+      if (error.cause === 'CredentialsSignin') {
+        return { error: 'Invalid credentials!' }
+      }
+      return { error: 'Something went wrong!' }
+    }
+
+    return { error: 'Something went wrong!' }
+  }
+}
+
+export const signinAction = async (values:SigninSchemaType) =>{
+  const validatedFields = signinSchema.safeParse(values)
+  
+  if (!validatedFields.success) {
+    return { error: 'Invalid fields' }
+  }
+  try{
+    const { email, password } = validatedFields.data
+
+    auth.api.signInEmail({
+      body:{
+        email,
+        password
+      }
+    })
+
+    return { success: 'Success sign your account' }
+  }catch(error){
     if (error instanceof BetterAuthError) {
       if (error.cause === 'CredentialsSignin') {
         return { error: 'Invalid credentials!' }

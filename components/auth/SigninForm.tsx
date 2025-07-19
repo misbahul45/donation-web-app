@@ -2,8 +2,8 @@
 import React, { useActionState, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { signupSchema, SignupSchemaType } from '@/schemas/auth.schema'
-import { signupAction } from '@/actions/auth.action'
+import { signinSchema, SigninSchemaType, signupSchema, SignupSchemaType } from '@/schemas/auth.schema'
+import { signinAction } from '@/actions/auth.action'
 import {
   Form,
   FormControl,
@@ -19,21 +19,18 @@ import { Eye, EyeOff } from 'lucide-react'
 const initialState: { success?: string; error?: string } | null = null
 
 function formReducer(_: typeof initialState, formData: FormData) {
-  return signupAction(formData as unknown as SignupSchemaType)
+  return signinAction(formData as unknown as SigninSchemaType)
 }
 
 const SigninForm = () => {
   const [state, formAction] = useActionState(formReducer, initialState)
   const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
-  const form = useForm<SignupSchemaType>({
-    resolver: zodResolver(signupSchema),
+  const form = useForm<SigninSchemaType>({
+    resolver: zodResolver(signinSchema),
     mode: 'onChange',
     defaultValues: {
-      name: '',
       password: '',
-      confirmPassword: '',
       email: '',
     },
   })

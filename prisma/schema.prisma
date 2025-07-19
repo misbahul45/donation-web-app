@@ -9,24 +9,23 @@ datasource db {
 
 model User {
   id        String @id @default(uuid())
-  username  String @unique
+  name  String @unique
   email     String @unique
-  password  String
-  createdAt BigInt @map("created_at")
+  password  String?
 
   roles       UserRole[]
   donations   Donation[]
   projects    Project[]    @relation("RequesterProjects")
   ragSessions RagSession[]
 
-  name          String
   emailVerified Boolean
   image         String?
-  updatedAt     DateTime
   sessions      Session[]
   accounts      Account[]
   notifications Notification[]
-
+  
+    updatedAt     DateTime
+  createdAt     DateTime @default(now())
   @@map("users")
 }
 
