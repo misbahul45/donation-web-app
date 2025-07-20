@@ -1,5 +1,6 @@
 'use server'
 import { auth } from "@/auth"
+import { sendVerificationEmail } from "@/lib/email"
 import { prisma } from "@/lib/prisma"
 import { signinSchema, SigninSchemaType, signupSchema, SignupSchemaType } from "@/schemas/auth.schema"
 import { BetterAuthError } from "better-auth"
@@ -23,6 +24,15 @@ export const signupAction = async (values:SignupSchemaType) => {
   const { name, email, password } = validatedFields.data
 
   try {
+    const existingUser=await prisma.user.count({
+      where:{
+        email
+      }
+    })
+
+    if(existingUser>0){
+      throw new Error('User already exist')
+    }
     const res = await auth.api.signUpEmail({
         body:{
             email,
@@ -47,16 +57,16 @@ export const signupAction = async (values:SignupSchemaType) => {
       }
     })
 
-    return { success: 'Account created!' }
+    return { success: 'Account created!, please check your email for verify account' }
   } catch (error) {
     if (error instanceof BetterAuthError) {
       if (error.cause === 'CredentialsSignin') {
         return { error: 'Invalid credentials!' }
       }
-      return { error: 'Something went wrong!' }
+      return { error: error.message }
     }
 
-    return { error: 'Something went wrong!' }
+    return { error: (error as Error).message || 'something wrong' }
   }
 }
 

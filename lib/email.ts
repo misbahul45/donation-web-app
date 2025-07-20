@@ -1,8 +1,5 @@
-export const runtime = 'edge'
-
 import { Resend } from 'resend'
-
-const resend = new Resend(process.env.RESEND_API_KEY!)
+import env from './env'
 
 const htmlTemplate = `
 <!DOCTYPE html>
@@ -83,16 +80,17 @@ export async function sendVerificationEmail({
   username: string
   url: string
 }) {
+  const resend = new Resend(env.resendApiKey)
+  console.log(resend)
   const htmlContent = htmlTemplate
     .replace(/{{USERNAME}}/g, username)
     .replace(/{{URL}}/g, url)
 
   const response = await resend.emails.send({
-    from: 'noreply@donationhub.com',
+    from: 'Donation Hub <onboarding@resend.dev>',
     to,
     subject: 'Verifikasi Email Anda - Donation Hub',
     html: htmlContent
   })
-
   return response
 }

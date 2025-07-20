@@ -37,7 +37,7 @@ const page = () => {
         </Link>
       </p>
 
-      <p className='md:text-sm text-xs dark:text-gray-600 text-gray-300'>
+      <p className='md:text-sm text-xs dark:text-gray-600 text-gray-300 text-center'>
         Dengan mendaftar, Anda menyetujui Ketentuan Layanan, Kebijakan Privasi, dan Ketentuan Penggunaan kami.
       </p>
     </div>

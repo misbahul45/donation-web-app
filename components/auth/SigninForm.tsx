@@ -15,15 +15,18 @@ import {
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Eye, EyeOff } from 'lucide-react'
+import { useActionForm } from '@/hook/useActionForm'
 
 const initialState: { success?: string; error?: string } | null = null
 
-function formReducer(_: typeof initialState, formData: FormData) {
-  return signinAction(formData as unknown as SigninSchemaType)
-}
+const extractSigninValues = (formData: FormData) => ({
+  name: formData.get('name') as string,
+  email: formData.get('email') as string,
+  password: formData.get('password') as string,
+  confirmPassword: formData.get('confirmPassword') as string,
+})
 
 const SigninForm = () => {
-  const [state, formAction] = useActionState(formReducer, initialState)
   const [showPassword, setShowPassword] = useState(false)
 
   const form = useForm<SigninSchemaType>({
@@ -33,6 +36,11 @@ const SigninForm = () => {
       password: '',
       email: '',
     },
+  })
+
+  const { state, isLoading, formAction }=useActionForm({
+    action : signinAction,
+    extractValues : extractSigninValues
   })
 
   return (
@@ -80,8 +88,8 @@ const SigninForm = () => {
         />
         {state?.error && <p className="text-red-500">{state.error}</p>}
         {state?.success && <p className="text-green-600">{state.success}</p>}
-        <Button disabled={!form.formState.isValid} type="submit" className='w-full disabled:cursor-not-allowed font-semibold cursor-pointer'>
-          Submit
+        <Button disabled={!form.formState.isValid || isLoading} type="submit" className='w-full disabled:cursor-not-allowed font-semibold cursor-pointer'>
+           {isLoading ? 'Mengirim...' : 'Submit'}
         </Button>
       </form>
     </Form>
