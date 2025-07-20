@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useState, useTransition } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { signupSchema, SignupSchemaType } from '@/schemas/auth.schema'
@@ -16,6 +16,8 @@ import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Eye, EyeOff } from 'lucide-react'
 import { useActionForm } from '@/hook/useActionForm'
+import { Spinner } from '../ui/Spinner'
+import { useRouter } from 'next/navigation'
 
 const extractSignupValues = (formData: FormData) => ({
   name: formData.get('name') as string,
@@ -27,6 +29,9 @@ const extractSignupValues = (formData: FormData) => ({
 const SignupForm = () => {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [isPending, startTransition] = useTransition()
+
+  const router=useRouter();
 
   const form = useForm<SignupSchemaType>({
     resolver: zodResolver(signupSchema),
@@ -39,15 +44,23 @@ const SignupForm = () => {
     },
   })
 
-  const { state, formAction, isLoading } = useActionForm({
+  const { state, formAction } = useActionForm({
     action: signupAction,
     extractValues: extractSignupValues,
   })
 
+  const handleSubmit = (formData: FormData) => {
+    startTransition(() => {
+      formAction(formData)
+      router.refresh()
+      router.push('/verify-email')
+    })
+  }
+
 
   return (
     <Form {...form}>
-      <form action={formAction} className="space-y-6">
+      <form action={handleSubmit} className="space-y-6">
         <FormField
           control={form.control}
           name="name"
@@ -133,11 +146,11 @@ const SignupForm = () => {
         {state?.success && <p className="text-green-600">{state.success}</p>}
 
         <Button
-          disabled={!form.formState.isValid || isLoading}
+          disabled={!form.formState.isValid || isPending}
           type="submit"
           className="w-full disabled:cursor-not-allowed font-semibold cursor-pointer"
         >
-          {isLoading ? 'Mengirim...' : 'Submit'}
+          {isPending ? <Spinner text='Mengirim...' />: 'Submit'}
         </Button>
       </form>
     </Form>

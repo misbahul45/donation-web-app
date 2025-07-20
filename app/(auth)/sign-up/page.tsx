@@ -19,7 +19,6 @@ const page = () => {
 
       <FormOuauth />
 
-      {/* Garis pembatas dengan teks OR */}
       <div className="flex items-center gap-4">
         <div className="flex-1 h-px bg-gray-300 dark:bg-gray-700" />
         <span className="text-sm text-muted-foreground">atau</span>

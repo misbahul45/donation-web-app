@@ -1,5 +1,5 @@
 'use client'
-import React, { useActionState, useState } from 'react'
+import React, { useActionState, useEffect, useState, useTransition } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { signinSchema, SigninSchemaType, signupSchema, SignupSchemaType } from '@/schemas/auth.schema'
@@ -16,6 +16,8 @@ import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Eye, EyeOff } from 'lucide-react'
 import { useActionForm } from '@/hook/useActionForm'
+import { Spinner } from '../ui/Spinner'
+import { useRouter } from 'next/navigation'
 
 const initialState: { success?: string; error?: string } | null = null
 
@@ -28,6 +30,8 @@ const extractSigninValues = (formData: FormData) => ({
 
 const SigninForm = () => {
   const [showPassword, setShowPassword] = useState(false)
+  const [isPending, startTransition] = useTransition()
+  const router=useRouter();
 
   const form = useForm<SigninSchemaType>({
     resolver: zodResolver(signinSchema),
@@ -38,14 +42,29 @@ const SigninForm = () => {
     },
   })
 
-  const { state, isLoading, formAction }=useActionForm({
+  const { state, formAction }=useActionForm({
     action : signinAction,
     extractValues : extractSigninValues
   })
 
+    const handleSubmit = (formData: FormData) => {
+      startTransition(() => {
+        formAction(formData)
+      })
+    }
+
+  useEffect(() => {
+    if (state?.success) {
+      router.push('/app')
+    } else if (state?.error && state.error.includes('verified')) {
+      router.push('/verify-email')
+    }
+  }, [state?.success, state?.error, router])
+
+
   return (
     <Form {...form}>
-      <form action={formAction} className="space-y-6">
+      <form action={handleSubmit} className="space-y-6">
         <FormField
           control={form.control}
           name="email"
@@ -88,8 +107,8 @@ const SigninForm = () => {
         />
         {state?.error && <p className="text-red-500">{state.error}</p>}
         {state?.success && <p className="text-green-600">{state.success}</p>}
-        <Button disabled={!form.formState.isValid || isLoading} type="submit" className='w-full disabled:cursor-not-allowed font-semibold cursor-pointer'>
-           {isLoading ? 'Mengirim...' : 'Submit'}
+        <Button disabled={!form.formState.isValid || isPending} type="submit" className='w-full disabled:cursor-not-allowed font-semibold cursor-pointer'>
+           {isPending ? <Spinner text='Signing....' /> : 'Submit'}
         </Button>
       </form>
     </Form>

@@ -1,17 +1,21 @@
 'use server'
-import { auth } from "@/auth"
-import { sendVerificationEmail } from "@/lib/email"
+import { auth, BetterSession } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { signinSchema, SigninSchemaType, signupSchema, SignupSchemaType } from "@/schemas/auth.schema"
 import { BetterAuthError } from "better-auth"
 import { headers } from "next/headers"
 
-export const getMe=async()=>{
-    const session=await auth.api.getSession({
-        headers: await headers()
-    })
-    return session?.user
-}
+
+export const getMe = async (): Promise<BetterSession | undefined> => {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) return undefined;
+
+  return session as BetterSession;
+};
+
 
 
 export const signupAction = async (values:SignupSchemaType) => {
@@ -59,12 +63,6 @@ export const signupAction = async (values:SignupSchemaType) => {
 
     return { success: 'Account created!, please check your email for verify account' }
   } catch (error) {
-    if (error instanceof BetterAuthError) {
-      if (error.cause === 'CredentialsSignin') {
-        return { error: 'Invalid credentials!' }
-      }
-      return { error: error.message }
-    }
 
     return { error: (error as Error).message || 'something wrong' }
   }
@@ -79,22 +77,17 @@ export const signinAction = async (values:SigninSchemaType) =>{
   try{
     const { email, password } = validatedFields.data
 
-    auth.api.signInEmail({
+    await auth.api.signInEmail({
       body:{
         email,
         password
-      }
+      },
     })
+
 
     return { success: 'Success sign your account' }
   }catch(error){
-    if (error instanceof BetterAuthError) {
-      if (error.cause === 'CredentialsSignin') {
-        return { error: 'Invalid credentials!' }
-      }
-      return { error: 'Something went wrong!' }
-    }
 
-    return { error: 'Something went wrong!' }
+    return { error: (error as Error).message || 'Something went wrong!' }
   }
 }

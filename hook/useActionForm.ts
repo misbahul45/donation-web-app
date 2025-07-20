@@ -1,5 +1,6 @@
 'use client'
-import { useState, useActionState } from 'react'
+import { useRouter } from 'next/navigation';
+import { useActionState } from 'react'
 
 type ActionFormState = { success?: string; error?: string } | null
 
@@ -9,17 +10,12 @@ type UseActionFormProps<T> = {
 }
 
 export function useActionForm<T>({ action, extractValues }: UseActionFormProps<T>) {
-  const [isLoading, setIsLoading] = useState(false)
-
+  const router=useRouter()
   const formReducer = async (_: ActionFormState, formData: FormData): Promise<ActionFormState> => {
-    setIsLoading(true)
-    try {
-      const values = extractValues(formData)
-      const result = await action(values)
-      return result
-    } finally {
-      setIsLoading(false)
-    }
+    const values = extractValues(formData)
+    const res=await action(values)
+    router.refresh()
+    return res;
   }
 
   const [state, formAction] = useActionState(formReducer, null)
@@ -27,6 +23,5 @@ export function useActionForm<T>({ action, extractValues }: UseActionFormProps<T
   return {
     state,
     formAction,
-    isLoading,
   }
 }

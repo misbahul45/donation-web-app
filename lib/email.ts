@@ -53,6 +53,16 @@ const htmlTemplate = `
       font-size: 12px;
       color: #888;
     }
+    .token-box {
+      margin-top: 20px;
+      padding: 10px;
+      background-color: #f1f5f9;
+      border: 1px dashed #94a3b8;
+      color: #1e293b;
+      font-family: monospace;
+      border-radius: 6px;
+      display: inline-block;
+    }
   </style>
 </head>
 <body>
@@ -63,6 +73,10 @@ const htmlTemplate = `
       Klik tombol di bawah ini untuk memverifikasi email Anda:
     </div>
     <a href="{{URL}}" class="button">Verifikasi Email</a>
+    <div class="message">
+      Atau gunakan token berikut ini:
+    </div>
+    <div class="token-box">{{TOKEN}}</div>
     <div class="footer">
       Jika Anda tidak merasa mendaftar di Donation Hub, abaikan pesan ini.
     </div>
@@ -74,17 +88,20 @@ const htmlTemplate = `
 export async function sendVerificationEmail({
   to,
   username,
-  url
+  url,
+  token
 }: {
   to: string
   username: string
   url: string
+  token: string
 }) {
   const resend = new Resend(env.resendApiKey)
-  console.log(resend)
+
   const htmlContent = htmlTemplate
     .replace(/{{USERNAME}}/g, username)
     .replace(/{{URL}}/g, url)
+    .replace(/{{TOKEN}}/g, token)
 
   const response = await resend.emails.send({
     from: 'Donation Hub <onboarding@resend.dev>',
@@ -92,5 +109,6 @@ export async function sendVerificationEmail({
     subject: 'Verifikasi Email Anda - Donation Hub',
     html: htmlContent
   })
+
   return response
 }

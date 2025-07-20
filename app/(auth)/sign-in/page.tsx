@@ -6,11 +6,11 @@ import React from 'react'
 
 const page = () => {
   return (
-    <div className='w-full pt-8 pb-4 px-4 max-w-2xl mx-auto text-center space-y-8'>
-      <h1 className='text-xl sm:text-3xl md:text-4xl font-bold mb-4'>
+    <div className='w-full pt-8 pb-4 px-4 max-w-2xl mx-auto space-y-8'>
+      <h1 className='text-center text-xl sm:text-3xl md:text-4xl font-bold mb-4'>
         Selamat Datang di <span className='text-primary'>Donation Hub</span>
       </h1>
-      <p className='text-muted-foreground text-base sm:text-lg'>
+      <p className='text-center text-muted-foreground text-base sm:text-lg'>
         Belum memiliki akun?{' '}
         <Link href='/sign-up'>
           <Button variant='link' asChild>

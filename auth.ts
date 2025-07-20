@@ -4,12 +4,14 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import env from "./lib/env";
 import { sendVerificationEmail } from "./lib/email";
 import { nextCookies } from "better-auth/next-js";
+import { customSession } from "better-auth/plugins";
  
 export const auth = betterAuth({
     database: prismaAdapter(prisma, {
         provider: "postgresql",
     }),
     emailAndPassword: {
+        requireEmailVerification: true,
         enabled: true, 
     }, 
    socialProviders: {
@@ -23,14 +25,15 @@ export const auth = betterAuth({
         },
     },
      emailVerification: {
-        sendOnSignUp:true,
         autoSignInAfterVerification:true,
-        sendVerificationEmail: async ({ user, url}) => {
+        sendOnSignUp:true,
+        sendVerificationEmail: async ({ user, url, token}) => {
             try{
                 const send=await sendVerificationEmail({
                         to: user.email,
                         username:user.name,
-                        url
+                        url,
+                        token
                     })
                 console.log(send)
             }catch(e){
@@ -38,5 +41,28 @@ export const auth = betterAuth({
             }
         }
     },
-    plugins: [nextCookies()]
+    plugins: [nextCookies(),
+        customSession(async ({ user, session }) => {
+            const dbUser = await prisma.user.findUnique({
+                where: { id: session.userId },
+                include: {
+                    roles: {
+                        select: { role: true },
+                    },
+                },
+            });
+
+            return {
+                user: {
+                ...user,
+                roles: dbUser?.roles.map((r) => r.role) || [],
+                },
+                session,
+            };
+        })
+
+    ]
 });
+
+
+export type BetterSession = typeof auth.$Infer.Session
