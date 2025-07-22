@@ -2,7 +2,6 @@ import { Context, Hono } from 'hono'
 import { handle } from 'hono/vercel'
 import { logger } from 'hono/logger'
 import { cors } from 'hono/cors'
-
 import userRouter from '@/hono/routes/user.route'
 import { API_RESPON } from '@/types'
 import { handleAppError } from '@/lib/error'

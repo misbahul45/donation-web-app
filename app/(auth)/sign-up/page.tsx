@@ -1,4 +1,3 @@
-import FormOuauth from '@/components/auth/FormOuauth'
 import SignupForm from '@/components/auth/SignupForm'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
@@ -17,13 +16,6 @@ const page = () => {
         berkontribusi secara langsung dalam mewujudkan perubahan untuk kemaslahatan umat.
       </p>
 
-      <FormOuauth />
-
-      <div className="flex items-center gap-4">
-        <div className="flex-1 h-px bg-gray-300 dark:bg-gray-700" />
-        <span className="text-sm text-muted-foreground">atau</span>
-        <div className="flex-1 h-px bg-gray-300 dark:bg-gray-700" />
-      </div>
 
       <SignupForm />
 

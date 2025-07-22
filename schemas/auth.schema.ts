@@ -17,5 +17,15 @@ export const signinSchema = z.object({
   password: z.string().min(8, { message: 'Password harus minimal 8 karakter' })
 })
 
+export const tokenSchema = z.object({
+  token: z.string().min(6, 'Token must be at least 6 characters'),
+})
+
+export const emailSchema = z.object({
+  email: z.string().email('Please enter a valid email address'),
+})
+
+export type TokenSchemaType = z.infer<typeof tokenSchema>
+export type EmailSchemaType = z.infer<typeof emailSchema>
 export type SignupSchemaType = z.infer<typeof signupSchema>
 export type SigninSchemaType = z.infer<typeof signinSchema>

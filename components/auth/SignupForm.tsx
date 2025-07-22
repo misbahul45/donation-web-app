@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useTransition } from 'react'
+import React, { useEffect, useState, useTransition } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { signupSchema, SignupSchemaType } from '@/schemas/auth.schema'
@@ -52,11 +52,15 @@ const SignupForm = () => {
   const handleSubmit = (formData: FormData) => {
     startTransition(() => {
       formAction(formData)
-      router.refresh()
-      router.push('/verify-email')
     })
   }
 
+  
+  useEffect(() => {
+    if (state?.success) {
+      router.push('/verify-email');
+    }
+  }, [state?.success, router]);
 
   return (
     <Form {...form}>

@@ -5,3 +5,10 @@ export interface API_RESPON<T=unknown> {
   err?: unknown
   meta?: Record<string, unknown>
 }
+
+export type MetaPagination = {
+  total: number
+  page: number
+  limit: number
+  totalPages: number
+}

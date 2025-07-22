@@ -1,4 +1,3 @@
-import FormOuauth from '@/components/auth/FormOuauth'
 import SigninForm from '@/components/auth/SigninForm'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
@@ -18,8 +17,6 @@ const page = () => {
           </Button>
         </Link>
       </p>
-
-      <FormOuauth />
 
       <div className="flex items-center gap-4 text-sm text-muted-foreground">
         <div className="flex-1 border-t" />

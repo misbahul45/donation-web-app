@@ -23,8 +23,8 @@ model User {
   accounts      Account[]
   notifications Notification[]
   
-    updatedAt     DateTime
-  createdAt     DateTime @default(now())
+   updatedAt     DateTime
+   createdAt     DateTime @default(now())
   @@map("users")
 }
 

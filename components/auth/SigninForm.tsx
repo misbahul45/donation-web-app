@@ -19,7 +19,6 @@ import { useActionForm } from '@/hook/useActionForm'
 import { Spinner } from '../ui/Spinner'
 import { useRouter } from 'next/navigation'
 
-const initialState: { success?: string; error?: string } | null = null
 
 const extractSigninValues = (formData: FormData) => ({
   name: formData.get('name') as string,
@@ -55,7 +54,7 @@ const SigninForm = () => {
 
   useEffect(() => {
     if (state?.success) {
-      router.push('/app')
+      router.push('/dashboard')
     } else if (state?.error && state.error.includes('verified')) {
       router.push('/verify-email')
     }

@@ -1,7 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { betterAuth } from "better-auth"
 import { prismaAdapter } from "better-auth/adapters/prisma";
-import env from "./lib/env";
 import { sendVerificationEmail } from "./lib/email";
 import { nextCookies } from "better-auth/next-js";
 import { customSession } from "better-auth/plugins";
@@ -14,31 +13,16 @@ export const auth = betterAuth({
         requireEmailVerification: true,
         enabled: true, 
     }, 
-   socialProviders: {
-        github: {
-            clientId: env.oauth.github.clientId!,
-            clientSecret: env.oauth.github.clientSecret!,
-        },
-        google: {
-            clientId: env.oauth.google.clientId!,
-            clientSecret: env.oauth.google.clientSecret!,
-        },
-    },
-     emailVerification: {
+    emailVerification: {
         autoSignInAfterVerification:true,
         sendOnSignUp:true,
         sendVerificationEmail: async ({ user, url, token}) => {
-            try{
-                const send=await sendVerificationEmail({
-                        to: user.email,
-                        username:user.name,
-                        url,
-                        token
-                    })
-                console.log(send)
-            }catch(e){
-                console.log(e)
-            }
+            await sendVerificationEmail({
+                to: user.email,
+                username:user.name,
+                url,
+                token
+            })
         }
     },
     plugins: [nextCookies(),
@@ -60,9 +44,15 @@ export const auth = betterAuth({
                 session,
             };
         })
-
     ]
 });
 
 
-export type BetterSession = typeof auth.$Infer.Session
+
+type Auth = typeof auth;
+
+export type BetterSession = Auth["$Infer"]["Session"] & {
+  user: Auth["$Infer"]["Session"]["user"] & {
+    roles: string[];
+  };
+};
